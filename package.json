@@ -2,8 +2,14 @@
   "name": "supreme-court-ne-rp",
   "private": true,
   "version": "0.1.0",
-  "packageManager": "pnpm@10",
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "dev": "echo \"Project initialization in progress\""
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.8"
   }
 }
