@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  USER
+  LAWYER
+  JUDGE
+  ADMIN
+  SUPER_ADMIN
+}
+
+
+enum CaseStatus {
+  OPEN
+  REVIEW
+  CLOSED
+  APPEAL
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+
+  discordId String   @unique
+  username  String
+
+  role      Role     @default(USER)
+
+  cases     Case[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Case {
+  id          String @id @default(uuid())
+
+  number      String @unique
+  title       String
+  description String
+
+  status      CaseStatus @default(OPEN)
+
+  judgeId     String?
+  judge       User? @relation(fields: [judgeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -11,6 +11,8 @@ coverage
 .env
 .env.local
 .env.*.local
+.env
+apps/api/.env
 
 # Logs
 *.log
@@ -27,3 +29,9 @@ Thumbs.db
 # IDE
 .vscode
 .idea
+
+#gitignore
+.env
+.env*
+!.env.example
+
