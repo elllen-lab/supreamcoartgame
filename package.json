@@ -4,12 +4,13 @@
   "version": "0.1.0",
   "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "concurrently \"pnpm --filter api dev\" \"pnpm --filter web dev\"",
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test"
   },
   "devDependencies": {
-    "turbo": "^2.10.8"
+    "concurrently": "^9.2.4",
+    "turbo": "2.10.8"
   }
 }

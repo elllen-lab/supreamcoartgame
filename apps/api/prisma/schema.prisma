@@ -7,15 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum Role {
   USER
   LAWYER
   JUDGE
-  ADMIN
+  CHIEF_JUDGE
   SUPER_ADMIN
 }
-
 
 enum CaseStatus {
   OPEN
@@ -24,34 +22,115 @@ enum CaseStatus {
   APPEAL
 }
 
+enum CaseDecisionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PUBLISHED
+}
 
 model User {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
 
-  discordId String   @unique
-  username  String
+  discordId String @unique
 
-  role      Role     @default(USER)
+  username String
 
-  cases     Case[]
+  role Role @default(USER)
+
+  createdCases Case[] @relation("AuthorCases")
+
+  assignedCases Case[] @relation("JudgeCases")
+
+  decisions CaseDecision[] @relation("DecisionJudge")
+
+  approvedDecisions CaseDecision[] @relation("DecisionApprover")
+
+  auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 }
 
-
 model Case {
-  id          String @id @default(uuid())
+  id String @id @default(uuid())
 
-  number      String @unique
-  title       String
+  number String @unique
+
+  title String
+
   description String
 
-  status      CaseStatus @default(OPEN)
+  status CaseStatus @default(OPEN)
 
-  judgeId     String?
-  judge       User? @relation(fields: [judgeId], references: [id])
+  authorId String
+
+  author User @relation("AuthorCases", fields: [authorId], references: [id])
+
+  judgeId String?
+
+  judge User? @relation("JudgeCases", fields: [judgeId], references: [id])
+
+  decision CaseDecision?
+
+  auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
+
+  publishedAt DateTime?
+
+  deletedAt DateTime?
+}
+
+model CaseDecision {
+  id String @id @default(uuid())
+
+  caseId String @unique
+
+  case Case @relation(fields: [caseId], references: [id])
+
+  judgeId String
+
+  judge User @relation("DecisionJudge", fields: [judgeId], references: [id])
+
+  text String
+
+  status CaseDecisionStatus @default(PENDING)
+
+  approvedById String?
+
+  approvedBy User? @relation("DecisionApprover", fields: [approvedById], references: [id])
+
+  approvedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id])
+
+  caseId String?
+
+  case Case? @relation(fields: [caseId], references: [id])
+
+  action String
+
+  details String
+
+  ip String?
+
+  userAgent String?
+
+  createdAt DateTime @default(now())
 }

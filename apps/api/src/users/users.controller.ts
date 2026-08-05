@@ -1,67 +1,122 @@
 import {
   Controller,
   Get,
-  Param,
-  Post,
-  Body,
-  Patch,
 } from '@nestjs/common';
 
-import { UsersService } from './users.service';
-import { Role } from '@prisma/client';
+import {
+  PrismaService,
+} from '../prisma/prisma.service';
+
 
 @Controller('users')
 export class UsersController {
 
+
   constructor(
-    private readonly usersService: UsersService,
+    private readonly prisma: PrismaService,
   ) {}
 
 
-  // Все пользователи
+
+  /**
+   * Все пользователи
+   */
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async getUsers(){
+
+
+    return this.prisma.user.findMany({
+
+      orderBy:{
+        createdAt:'desc',
+      },
+
+      select:{
+
+
+        id:true,
+
+        username:true,
+
+        discordId:true,
+
+        role:true,
+
+
+        createdAt:true,
+
+
+      },
+
+
+    });
+
+
   }
 
 
-  // Пользователь по Discord ID
-  @Get(':discordId')
-  findByDiscordId(
-    @Param('discordId') discordId: string,
-  ) {
-    return this.usersService.findByDiscordId(discordId);
+
+
+
+  /**
+   * Судьи
+   */
+  @Get('judges')
+  async getJudges(){
+
+
+    return this.prisma.user.findMany({
+
+
+      where:{
+
+
+        role:{
+
+
+          in:[
+
+            'JUDGE',
+
+            'CHIEF_JUDGE',
+
+          ],
+
+
+        },
+
+
+      },
+
+
+      select:{
+
+
+        id:true,
+
+        username:true,
+
+        discordId:true,
+
+        role:true,
+
+
+      },
+
+
+      orderBy:{
+
+
+        username:'asc',
+
+
+      },
+
+
+    });
+
+
   }
 
 
-  // Создание пользователя
-  @Post()
-  create(
-    @Body()
-    body: {
-      discordId: string;
-      username: string;
-    },
-  ) {
-    return this.usersService.createUser(
-      body.discordId,
-      body.username,
-    );
-  }
-
-
-  // Изменение роли
-  @Patch(':id/role')
-  updateRole(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      role: Role;
-    },
-  ) {
-    return this.usersService.updateRole(
-      id,
-      body.role,
-    );
-  }
 }
